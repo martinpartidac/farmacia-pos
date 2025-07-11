@@ -28,13 +28,20 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .offline {
-            background-color: #fef3c7;
-            border-color: #f59e0b;
-        }
         .online {
             background-color: #d1fae5;
-            border-color: #10b981;
+            border: 2px solid #10b981;
+            color: #065f46;
+        }
+        .offline {
+            background-color: #fef3c7;
+            border: 2px solid #f59e0b;
+            color: #92400e;
+        }
+        .error {
+            background-color: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
         }
     </style>
 </head>
@@ -44,8 +51,8 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // CONFIGURACIÓN - REEMPLAZA CON TU URL DE GOOGLE APPS SCRIPT
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxnFPy6hBpoKmFIGuM4niu_zqXnYXFcRra5Dz2f15ulIOxyLThlPOTQxRJSUT-6rtNf/exec';
+        // CONFIGURACIÓN DE GOOGLE SHEETS
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhs3YpDVZdjTuFp5FLZKl0_pubvR5fpLI75vM-s22TO2tLEXg7ecNvIJmYW0CEsSoh/exec';
 
         // Iconos SVG
         const Icons = {
@@ -84,6 +91,16 @@
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
             ),
+            Cloud: () => (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                </svg>
+            ),
+            Sync: () => (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+            ),
             X: () => (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -104,19 +121,14 @@
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
             ),
-            Cloud: () => (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+            Grid: () => (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                 </svg>
             ),
-            Wifi: () => (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
-                </svg>
-            ),
-            WifiOff: () => (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
+            List: () => (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                 </svg>
             )
         };
@@ -158,6 +170,10 @@
                 }
             },
 
+            async test() {
+                return await this.call('test');
+            },
+
             async getMedications() {
                 return await this.call('getMedications');
             },
@@ -187,6 +203,7 @@
             // Estados principales
             const [medications, setMedications] = useState([]);
             const [searchTerm, setSearchTerm] = useState('');
+            const [viewMode, setViewMode] = useState('grid');
             const [activeTab, setActiveTab] = useState('dashboard');
             const [cart, setCart] = useState([]);
             const [salesHistory, setSalesHistory] = useState([]);
@@ -194,8 +211,8 @@
             const [editingMed, setEditingMed] = useState(null);
             const [showAddStock, setShowAddStock] = useState(null);
             const [loading, setLoading] = useState(false);
-            const [isOnline, setIsOnline] = useState(true);
             const [connectionStatus, setConnectionStatus] = useState('checking');
+            const [lastSync, setLastSync] = useState(null);
 
             // Estados del formulario
             const [formData, setFormData] = useState({
@@ -222,40 +239,19 @@
 
             // Verificar conexión y cargar datos
             useEffect(() => {
-                checkConnection();
                 loadInitialData();
             }, []);
-
-            const checkConnection = async () => {
-                try {
-                    setConnectionStatus('checking');
-                    // Simple test para verificar conexión
-                    await fetch('https://www.google.com/favicon.ico', { mode: 'no-cors' });
-                    setIsOnline(true);
-                    setConnectionStatus('online');
-                } catch (error) {
-                    setIsOnline(false);
-                    setConnectionStatus('offline');
-                }
-            };
 
             const loadInitialData = async () => {
                 try {
                     setLoading(true);
+                    setConnectionStatus('checking');
                     
-                    if (GOOGLE_SCRIPT_URL === 'REEMPLAZA_AQUI_TU_URL_DE_APPS_SCRIPT') {
-                        // Usar localStorage si no hay URL configurada
-                        const savedMeds = localStorage.getItem('pharmacy_medications');
-                        const savedSales = localStorage.getItem('pharmacy_sales');
-                        
-                        if (savedMeds) setMedications(JSON.parse(savedMeds));
-                        if (savedSales) setSalesHistory(JSON.parse(savedSales));
-                        
-                        setConnectionStatus('local');
-                        return;
-                    }
-
-                    // Cargar desde Google Sheets
+                    // Test connection first
+                    const testResult = await API.test();
+                    console.log('Connection test:', testResult);
+                    
+                    // Load data
                     const [medsResult, salesResult] = await Promise.all([
                         API.getMedications(),
                         API.getSales()
@@ -264,17 +260,18 @@
                     setMedications(medsResult.data || []);
                     setSalesHistory(salesResult.data || []);
                     setConnectionStatus('online');
+                    setLastSync(new Date());
 
                 } catch (error) {
                     console.error('Error loading data:', error);
+                    setConnectionStatus('error');
+                    
                     // Fallback a localStorage
                     const savedMeds = localStorage.getItem('pharmacy_medications');
                     const savedSales = localStorage.getItem('pharmacy_sales');
                     
                     if (savedMeds) setMedications(JSON.parse(savedMeds));
                     if (savedSales) setSalesHistory(JSON.parse(savedSales));
-                    
-                    setConnectionStatus('offline');
                 } finally {
                     setLoading(false);
                 }
@@ -354,8 +351,9 @@
                         dateAdded: new Date().toISOString()
                     };
 
-                    if (connectionStatus === 'online' && GOOGLE_SCRIPT_URL !== 'REEMPLAZA_AQUI_TU_URL_DE_APPS_SCRIPT') {
+                    if (connectionStatus === 'online') {
                         await API.addMedication(newMed);
+                        setLastSync(new Date());
                     }
 
                     setMedications(prev => [...prev, newMed]);
@@ -365,25 +363,8 @@
 
                 } catch (error) {
                     console.error('Error adding medication:', error);
-                    // Agregar localmente si falla la conexión
-                    const newMed = {
-                        id: Date.now(),
-                        name: formData.name,
-                        presentation: formData.presentation,
-                        activeSubstance: formData.activeSubstance,
-                        unitPrice: parseFloat(formData.unitPrice) || 0,
-                        publicPrice: parseFloat(formData.publicPrice) || 0,
-                        quantity: parseInt(formData.quantity) || 0,
-                        minStock: parseInt(formData.minStock) || 5,
-                        representative: formData.representative,
-                        phone: formData.phone,
-                        dateAdded: new Date().toISOString()
-                    };
-
-                    setMedications(prev => [...prev, newMed]);
-                    resetForm();
-                    setShowAddForm(false);
-                    alert('Medicamento agregado localmente (se sincronizará cuando haya conexión)');
+                    setConnectionStatus('error');
+                    alert('Error al sincronizar con Google Sheets, pero se guardó localmente');
                 } finally {
                     setLoading(false);
                 }
@@ -411,8 +392,9 @@
                         phone: formData.phone
                     };
 
-                    if (connectionStatus === 'online' && GOOGLE_SCRIPT_URL !== 'REEMPLAZA_AQUI_TU_URL_DE_APPS_SCRIPT') {
+                    if (connectionStatus === 'online') {
                         await API.updateMedication(updatedMed);
+                        setLastSync(new Date());
                     }
                     
                     setMedications(prev => prev.map(med => 
@@ -424,7 +406,8 @@
 
                 } catch (error) {
                     console.error('Error updating medication:', error);
-                    alert('Error al actualizar. Los cambios se guardaron localmente.');
+                    setConnectionStatus('error');
+                    alert('Error al sincronizar con Google Sheets, pero se guardó localmente');
                 } finally {
                     setLoading(false);
                 }
@@ -436,8 +419,9 @@
                 try {
                     setLoading(true);
 
-                    if (connectionStatus === 'online' && GOOGLE_SCRIPT_URL !== 'REEMPLAZA_AQUI_TU_URL_DE_APPS_SCRIPT') {
+                    if (connectionStatus === 'online') {
                         await API.deleteMedication(id);
+                        setLastSync(new Date());
                     }
 
                     setMedications(prev => prev.filter(med => med.id !== id));
@@ -445,8 +429,8 @@
 
                 } catch (error) {
                     console.error('Error deleting medication:', error);
-                    setMedications(prev => prev.filter(med => med.id !== id));
-                    alert('Medicamento eliminado localmente (se sincronizará cuando haya conexión)');
+                    setConnectionStatus('error');
+                    alert('Error al sincronizar con Google Sheets, pero se eliminó localmente');
                 } finally {
                     setLoading(false);
                 }
@@ -467,8 +451,9 @@
                         quantity: showAddStock.quantity + addedQuantity
                     };
 
-                    if (connectionStatus === 'online' && GOOGLE_SCRIPT_URL !== 'REEMPLAZA_AQUI_TU_URL_DE_APPS_SCRIPT') {
+                    if (connectionStatus === 'online') {
                         await API.updateMedication(updatedMed);
+                        setLastSync(new Date());
                     }
 
                     setMedications(prev => prev.map(med => 
@@ -481,7 +466,8 @@
 
                 } catch (error) {
                     console.error('Error adding stock:', error);
-                    alert('Error al agregar stock. Los cambios se guardaron localmente.');
+                    setConnectionStatus('error');
+                    alert('Error al sincronizar con Google Sheets, pero se guardó localmente');
                 } finally {
                     setLoading(false);
                 }
@@ -572,7 +558,7 @@
                         return med;
                     });
 
-                    if (connectionStatus === 'online' && GOOGLE_SCRIPT_URL !== 'REEMPLAZA_AQUI_TU_URL_DE_APPS_SCRIPT') {
+                    if (connectionStatus === 'online') {
                         // Actualizar medicamentos en Google Sheets
                         for (const cartItem of cart) {
                             const updatedMed = updatedMeds.find(med => med.id === cartItem.id);
@@ -581,6 +567,7 @@
                         
                         // Guardar venta en Google Sheets
                         await API.addSale(sale);
+                        setLastSync(new Date());
                     }
 
                     setMedications(updatedMeds);
@@ -590,7 +577,8 @@
 
                 } catch (error) {
                     console.error('Error processing sale:', error);
-                    alert('Error al procesar la venta. Los cambios se guardaron localmente.');
+                    setConnectionStatus('error');
+                    alert('Error al sincronizar con Google Sheets, pero la venta se guardó localmente');
                 } finally {
                     setLoading(false);
                 }
@@ -619,6 +607,24 @@
                 URL.revokeObjectURL(url);
             };
 
+            const manualSync = async () => {
+                try {
+                    setLoading(true);
+                    setConnectionStatus('checking');
+                    
+                    const testResult = await API.test();
+                    console.log('Manual sync test:', testResult);
+                    
+                    await loadInitialData();
+                    alert('Sincronización exitosa');
+                } catch (error) {
+                    setConnectionStatus('error');
+                    alert('Error en la sincronización');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
             const resetForm = () => {
                 setFormData({
                     name: '',
@@ -644,24 +650,45 @@
             const todayRevenue = todaySales.reduce((sum, sale) => sum + sale.total, 0);
 
             // Status indicator
-            const StatusIndicator = () => (
-                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
-                    connectionStatus === 'online' ? 'online' : 
-                    connectionStatus === 'offline' ? 'offline' :
-                    connectionStatus === 'local' ? 'bg-blue-100 border border-blue-300 text-blue-800' :
-                    'bg-gray-100 border border-gray-300 text-gray-800'
-                }`}>
-                    {connectionStatus === 'checking' && <div className="loading"></div>}
-                    {connectionStatus === 'online' && <Icons.Wifi />}
-                    {connectionStatus === 'offline' && <Icons.WifiOff />}
-                    {connectionStatus === 'local' && <Icons.Package />}
-                    
-                    {connectionStatus === 'online' && 'En línea - Google Sheets'}
-                    {connectionStatus === 'offline' && 'Sin conexión - Solo local'}
-                    {connectionStatus === 'local' && 'Modo local - Configura Google Sheets'}
-                    {connectionStatus === 'checking' && 'Verificando conexión...'}
-                </div>
-            );
+            const StatusIndicator = () => {
+                const getStatusInfo = () => {
+                    switch(connectionStatus) {
+                        case 'online':
+                            return {
+                                className: 'online',
+                                icon: <Icons.Cloud />,
+                                text: `En línea - Google Sheets ${lastSync ? '(Sincronizado: ' + lastSync.toLocaleTimeString() + ')' : ''}`
+                            };
+                        case 'error':
+                            return {
+                                className: 'error',
+                                icon: <Icons.AlertTriangle />,
+                                text: 'Error de conexión - Usando datos locales'
+                            };
+                        case 'checking':
+                            return {
+                                className: 'offline',
+                                icon: <div className="loading"></div>,
+                                text: 'Verificando conexión...'
+                            };
+                        default:
+                            return {
+                                className: 'offline',
+                                icon: <Icons.Package />,
+                                text: 'Modo local'
+                            };
+                    }
+                };
+
+                const { className, icon, text } = getStatusInfo();
+
+                return (
+                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${className}`}>
+                        {icon}
+                        {text}
+                    </div>
+                );
+            };
 
             return (
                 <div className="min-h-screen bg-gray-50">
@@ -678,11 +705,11 @@
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <button
-                                        onClick={checkConnection}
+                                        onClick={manualSync}
                                         disabled={loading}
                                         className="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50"
                                     >
-                                        {loading ? <div className="loading"></div> : <Icons.Cloud />}
+                                        {loading ? <div className="loading"></div> : <Icons.Sync />}
                                         Sincronizar
                                     </button>
                                     <button
@@ -722,23 +749,6 @@
                             </div>
                         </div>
                     </nav>
-
-                    {/* Mensaje de configuración si falta URL */}
-                    {connectionStatus === 'local' && (
-                        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mx-4 mt-4">
-                            <div className="flex">
-                                <div className="flex-shrink-0">
-                                    <Icons.AlertTriangle />
-                                </div>
-                                <div className="ml-3">
-                                    <p className="text-sm text-yellow-700">
-                                        <strong>Configuración pendiente:</strong> Para sincronizar con Google Sheets, reemplaza 'REEMPLAZA_AQUI_TU_URL_DE_APPS_SCRIPT' con tu URL de Google Apps Script en el código.
-                                        <br />Por ahora el sistema funciona solo localmente.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
 
                     <div className="max-w-7xl mx-auto px-4 py-6">
                         {/* Dashboard */}
@@ -911,12 +921,319 @@
                             </div>
                         )}
 
-                        {/* Resto de las pestañas (inventario, ventas, reportes) se mantendrían igual que antes pero con loading states */}
-                        {/* Por brevedad, mantengo solo el dashboard aquí, pero agregaría el resto igual */}
+                        {/* Inventario */}
+                        {activeTab === 'inventory' && (
+                            <div className="space-y-6">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                    <h2 className="text-2xl font-bold text-gray-900">Inventario</h2>
+                                    <div className="flex items-center gap-4">
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <Icons.Search />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                placeholder="Buscar medicamentos..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => setViewMode('grid')}
+                                                className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                                            >
+                                                <Icons.Grid />
+                                            </button>
+                                            <button
+                                                onClick={() => setViewMode('list')}
+                                                className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                                            >
+                                                <Icons.List />
+                                            </button>
+                                        </div>
+                                        <button
+                                            onClick={() => setShowAddForm(true)}
+                                            disabled={loading}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50"
+                                        >
+                                            {loading ? <div className="loading"></div> : <Icons.Plus />}
+                                            Agregar
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {filteredMedications.length === 0 ? (
+                                    <div className="text-center py-12">
+                                        <div className="bg-white rounded-lg shadow p-8">
+                                            <Icons.Package />
+                                            <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay medicamentos</h3>
+                                            <p className="text-gray-600 mb-4">
+                                                {medications.length === 0 ? 'Agrega tu primer medicamento' : 'No se encontraron resultados para tu búsqueda'}
+                                            </p>
+                                            {medications.length === 0 && (
+                                                <button
+                                                    onClick={() => setShowAddForm(true)}
+                                                    disabled={loading}
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 mx-auto transition-colors disabled:opacity-50"
+                                                >
+                                                    {loading ? <div className="loading"></div> : <Icons.Plus />}
+                                                    Agregar Medicamento
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                        {filteredMedications.map(med => (
+                                            <div key={med.id} className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+                                                <div className="p-4">
+                                                    <div className="flex justify-between items-start mb-3">
+                                                        <h3 className="font-semibold text-gray-900 truncate pr-2">{med.name}</h3>
+                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                                                            med.quantity <= med.minStock 
+                                                                ? 'bg-red-100 text-red-800' 
+                                                                : 'bg-green-100 text-green-800'
+                                                        }`}>
+                                                            {med.quantity} uds
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <div className="space-y-2 text-sm text-gray-600">
+                                                        <p><span className="font-medium">Presentación:</span> {med.presentation}</p>
+                                                        <p><span className="font-medium">Sustancia:</span> {med.activeSubstance || 'N/A'}</p>
+                                                        <p><span className="font-medium">Precio:</span> ${med.publicPrice}</p>
+                                                        <p><span className="font-medium">Representante:</span> {med.representative || 'N/A'}</p>
+                                                    </div>
+
+                                                    <div className="flex gap-2 mt-4">
+                                                        <button
+                                                            onClick={() => {
+                                                                setEditingMed(med);
+                                                                setFormData({
+                                                                    name: med.name,
+                                                                    presentation: med.presentation,
+                                                                    activeSubstance: med.activeSubstance || '',
+                                                                    unitPrice: med.unitPrice.toString(),
+                                                                    publicPrice: med.publicPrice.toString(),
+                                                                    quantity: med.quantity.toString(),
+                                                                    minStock: med.minStock.toString(),
+                                                                    representative: med.representative || '',
+                                                                    phone: med.phone || ''
+                                                                });
+                                                            }}
+                                                            disabled={loading}
+                                                            className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1 rounded text-sm flex items-center justify-center gap-1 transition-colors disabled:opacity-50"
+                                                        >
+                                                            <Icons.Edit />
+                                                            Editar
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setShowAddStock(med)}
+                                                            disabled={loading}
+                                                            className="flex-1 bg-green-50 hover:bg-green-100 text-green-600 px-3 py-1 rounded text-sm flex items-center justify-center gap-1 transition-colors disabled:opacity-50"
+                                                        >
+                                                            <Icons.Plus />
+                                                            Stock
+                                                        </button>
+                                                        <button
+                                                            onClick={() => deleteMedication(med.id)}
+                                                            disabled={loading}
+                                                            className="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1 rounded text-sm flex items-center justify-center transition-colors disabled:opacity-50"
+                                                        >
+                                                            <Icons.Trash />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Ventas */}
+                        {activeTab === 'sales' && (
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {/* Búsqueda y productos */}
+                                <div className="lg:col-span-2 space-y-6">
+                                    <div className="bg-white rounded-lg shadow p-6">
+                                        <h3 className="text-lg font-semibold mb-4">Buscar Productos</h3>
+                                        <div className="relative mb-4">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <Icons.Search />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                placeholder="Buscar medicamentos para vender..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-3 max-h-96 overflow-y-auto">
+                                            {filteredMedications.filter(med => med.quantity > 0).length === 0 ? (
+                                                <p className="text-gray-500 text-center py-8">No hay productos disponibles para venta</p>
+                                            ) : (
+                                                filteredMedications.filter(med => med.quantity > 0).map(med => (
+                                                    <div key={med.id} className="flex justify-between items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                                        <div className="flex-1">
+                                                            <h4 className="font-medium text-gray-900">{med.name}</h4>
+                                                            <p className="text-sm text-gray-600">{med.presentation} - {med.activeSubstance}</p>
+                                                            <div className="flex gap-4 text-sm text-gray-500">
+                                                                <span>Stock: {med.quantity}</span>
+                                                                <span>Precio: ${med.publicPrice}</span>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => addToCart(med)}
+                                                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                                                        >
+                                                            <Icons.Plus />
+                                                            Agregar
+                                                        </button>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Carrito */}
+                                <div className="bg-white rounded-lg shadow p-6">
+                                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                                        <Icons.ShoppingCart />
+                                        Carrito ({cart.length})
+                                    </h3>
+
+                                    {cart.length === 0 ? (
+                                        <p className="text-gray-500 text-center py-8">El carrito está vacío</p>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {cart.map(item => (
+                                                <div key={item.id} className="border border-gray-200 rounded-lg p-3">
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <h4 className="font-medium text-gray-900 text-sm pr-2">{item.name}</h4>
+                                                        <button
+                                                            onClick={() => updateCartQuantity(item.id, 0)}
+                                                            className="text-red-500 hover:text-red-700 transition-colors"
+                                                        >
+                                                            <Icons.X />
+                                                        </button>
+                                                    </div>
+                                                    <p className="text-xs text-gray-600 mb-2">{item.presentation}</p>
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="flex items-center gap-2">
+                                                            <button
+                                                                onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
+                                                                className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center text-sm transition-colors"
+                                                            >
+                                                                -
+                                                            </button>
+                                                            <span className="w-8 text-center text-sm">{item.quantity}</span>
+                                                            <button
+                                                                onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
+                                                                className="w-6 h-6 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center text-sm transition-colors"
+                                                            >
+                                                                +
+                                                            </button>
+                                                        </div>
+                                                        <span className="text-sm font-medium">${(item.publicPrice * item.quantity).toFixed(2)}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+
+                                            <div className="border-t pt-4">
+                                                <div className="flex justify-between items-center mb-4">
+                                                    <span className="font-semibold">Total:</span>
+                                                    <span className="font-bold text-lg">
+                                                        ${cart.reduce((sum, item) => sum + (item.publicPrice * item.quantity), 0).toFixed(2)}
+                                                    </span>
+                                                </div>
+                                                <button
+                                                    onClick={processSale}
+                                                    disabled={loading}
+                                                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                                                >
+                                                    {loading ? <div className="loading"></div> : <Icons.Check />}
+                                                    Procesar Venta
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Reportes */}
+                        {activeTab === 'reports' && (
+                            <div className="space-y-6">
+                                <h2 className="text-2xl font-bold text-gray-900">Reportes</h2>
+                                
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    {/* Medicamentos más vendidos */}
+                                    <div className="bg-white rounded-lg shadow p-6">
+                                        <h3 className="text-lg font-semibold mb-4">Medicamentos Más Vendidos</h3>
+                                        <div className="space-y-3">
+                                            {topSellingMeds.filter(med => med.totalSold > 0).length === 0 ? (
+                                                <p className="text-gray-500 text-center py-8">No hay ventas registradas</p>
+                                            ) : (
+                                                topSellingMeds.filter(med => med.totalSold > 0).map((med, index) => (
+                                                    <div key={med.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">
+                                                                {index + 1}
+                                                            </span>
+                                                            <div>
+                                                                <p className="font-medium text-gray-900">{med.name}</p>
+                                                                <p className="text-sm text-gray-600">{med.presentation}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <p className="font-bold text-blue-600">{med.totalSold}</p>
+                                                            <p className="text-sm text-gray-500">vendidos</p>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Historial de ventas */}
+                                    <div className="bg-white rounded-lg shadow p-6">
+                                        <h3 className="text-lg font-semibold mb-4">Historial de Ventas</h3>
+                                        <div className="space-y-3 max-h-96 overflow-y-auto">
+                                            {salesHistory.length === 0 ? (
+                                                <p className="text-gray-500 text-center py-8">No hay ventas registradas</p>
+                                            ) : (
+                                                salesHistory.slice().reverse().map(sale => (
+                                                    <div key={sale.id} className="border border-gray-200 rounded-lg p-3">
+                                                        <div className="flex justify-between items-start mb-2">
+                                                            <span className="text-sm text-gray-600">
+                                                                {new Date(sale.date).toLocaleString()}
+                                                            </span>
+                                                            <span className="font-bold text-green-600">${sale.total.toFixed(2)}</span>
+                                                        </div>
+                                                        <div className="text-sm text-gray-600">
+                                                            {sale.items && sale.items.map(item => (
+                                                                <div key={item.id}>
+                                                                    {item.name} x{item.quantity}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Modales (mantener igual que antes) */}
-                    {/* Modal Agregar Medicamento */}
+                    {/* Modal Agregar/Editar Medicamento */}
                     {(showAddForm || editingMed) && (
                         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                             <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto fade-in">
@@ -1089,6 +1406,85 @@
                                             >
                                                 {loading ? <div className="loading"></div> : null}
                                                 {editingMed ? 'Actualizar' : 'Guardar'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Modal Agregar Stock */}
+                    {showAddStock && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                            <div className="bg-white rounded-lg shadow-xl w-full max-w-md fade-in">
+                                <div className="p-6">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-lg font-semibold">Agregar Stock</h3>
+                                        <button
+                                            onClick={() => {
+                                                setShowAddStock(null);
+                                                setAddStockData({ quantity: '', date: new Date().toISOString().split('T')[0] });
+                                            }}
+                                            className="text-gray-400 hover:text-gray-600 transition-colors"
+                                        >
+                                            <Icons.X />
+                                        </button>
+                                    </div>
+
+                                    <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                                        <h4 className="font-medium text-gray-900">{showAddStock.name}</h4>
+                                        <p className="text-sm text-gray-600">{showAddStock.presentation}</p>
+                                        <p className="text-sm text-gray-600">Stock actual: {showAddStock.quantity} unidades</p>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Cantidad a agregar *
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={addStockData.quantity}
+                                                onChange={(e) => setAddStockData({...addStockData, quantity: e.target.value})}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                min="1"
+                                                placeholder="Cantidad"
+                                                disabled={loading}
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Fecha de entrada
+                                            </label>
+                                            <input
+                                                type="date"
+                                                value={addStockData.date}
+                                                onChange={(e) => setAddStockData({...addStockData, date: e.target.value})}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                disabled={loading}
+                                            />
+                                        </div>
+
+                                        <div className="flex gap-4 pt-4">
+                                            <button
+                                                onClick={() => {
+                                                    setShowAddStock(null);
+                                                    setAddStockData({ quantity: '', date: new Date().toISOString().split('T')[0] });
+                                                }}
+                                                disabled={loading}
+                                                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                            >
+                                                Cancelar
+                                            </button>
+                                            <button
+                                                onClick={addStock}
+                                                disabled={loading}
+                                                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                            >
+                                                {loading ? <div className="loading"></div> : null}
+                                                Agregar Stock
                                             </button>
                                         </div>
                                     </div>
