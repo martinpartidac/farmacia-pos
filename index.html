@@ -157,15 +157,11 @@
 
             // Guardar automáticamente
             useEffect(() => {
-                if (medications.length > 0) {
-                    localStorage.setItem('pharmacy_medications', JSON.stringify(medications));
-                }
+                localStorage.setItem('pharmacy_medications', JSON.stringify(medications));
             }, [medications]);
 
             useEffect(() => {
-                if (salesHistory.length > 0) {
-                    localStorage.setItem('pharmacy_sales', JSON.stringify(salesHistory));
-                }
+                localStorage.setItem('pharmacy_sales', JSON.stringify(salesHistory));
             }, [salesHistory]);
 
             // Búsqueda inteligente
