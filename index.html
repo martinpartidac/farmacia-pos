@@ -187,7 +187,10 @@
             },
 
             async deleteMedication(id) {
-                return await this.call('deleteMedication', id);
+                console.log('API: Deleting medication with ID:', id);
+                const result = await this.call('deleteMedication', id);
+                console.log('API: Delete result:', result);
+                return result;
             },
 
             async getSales() {
@@ -419,8 +422,11 @@
                 try {
                     setLoading(true);
 
+                    console.log('Attempting to delete medication with ID:', id);
+
                     if (connectionStatus === 'online') {
-                        await API.deleteMedication(id);
+                        const result = await API.deleteMedication(id);
+                        console.log('Delete result:', result);
                         setLastSync(new Date());
                     }
 
@@ -430,7 +436,10 @@
                 } catch (error) {
                     console.error('Error deleting medication:', error);
                     setConnectionStatus('error');
-                    alert('Error al sincronizar con Google Sheets, pero se eliminó localmente');
+                    
+                    // Eliminar localmente aunque falle la sincronización
+                    setMedications(prev => prev.filter(med => med.id !== id));
+                    alert('Error al sincronizar con Google Sheets, pero se eliminó localmente. Intenta sincronizar manualmente.');
                 } finally {
                     setLoading(false);
                 }
